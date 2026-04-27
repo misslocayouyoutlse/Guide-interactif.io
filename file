@@ -1,0 +1,441 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:transparent;color:#1a1a2e}
+.wrap{max-width:680px;margin:0 auto;padding:0.5rem}
+.scene{background:#f0ede8;border-radius:24px;padding:1.4rem 1.2rem 1.5rem;position:relative;overflow:hidden;border:1.5px solid #e0dbd2}
+.deco{position:absolute;border-radius:50%;pointer-events:none}
+.deco1{width:240px;height:240px;background:#FFE5D0;top:-70px;right:-50px;opacity:0.55}
+.deco2{width:160px;height:160px;background:#D0F0E8;bottom:-40px;left:-30px;opacity:0.5}
+.deco3{width:100px;height:100px;background:#E8D8F8;top:45%;right:15px;opacity:0.4}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem;position:relative;z-index:2}
+.logo{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:800;color:#1a1a2e}
+.logo span{color:#E76F51}
+.steps{display:flex;gap:5px;align-items:center}
+.step-pip{height:6px;border-radius:4px;background:#d8d3cc;transition:all 0.4s;width:26px}
+.step-pip.done{background:#2A9D8F}
+.step-pip.active{background:#E76F51;width:38px}
+
+.q-zone{position:relative;z-index:2}
+.q-eyebrow{font-size:0.67rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#a09a90;margin-bottom:0.35rem}
+.q-text{font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:800;color:#1a1a2e;line-height:1.25;margin-bottom:1rem}
+.choices{display:grid;gap:8px;position:relative;z-index:2}
+.choices.two{grid-template-columns:1fr 1fr}
+.choices.three{grid-template-columns:1fr 1fr 1fr}
+.choice-btn{border:2px solid #e8e3dc;cursor:pointer;border-radius:14px;padding:0.85rem 0.75rem;text-align:left;display:flex;flex-direction:column;gap:3px;transition:transform 0.18s,box-shadow 0.18s,border-color 0.18s;font-family:'DM Sans',sans-serif;position:relative;background:white}
+.choice-btn:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,0.09)}
+.choice-btn.selected{border-color:var(--sel);transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,0.11)}
+.choice-btn.selected .chk{opacity:1}
+.chk{position:absolute;top:7px;right:8px;width:20px;height:20px;border-radius:50%;background:var(--sel,#E76F51);display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:800;color:white;opacity:0;transition:opacity 0.2s}
+.c-stripe{position:absolute;bottom:0;left:0;right:0;height:4px;border-radius:0 0 12px 12px;background:var(--sel,#ccc);opacity:0;transition:opacity 0.2s}
+.choice-btn.selected .c-stripe{opacity:1}
+.ci{font-size:1.4rem;line-height:1;margin-bottom:3px}
+.cm{font-size:0.85rem;font-weight:700;color:#1a1a2e;line-height:1.2}
+.cs{font-size:0.68rem;color:#9a9490;font-weight:500}
+
+.nav{display:flex;gap:8px;margin-top:0.9rem;position:relative;z-index:2}
+.btn-back2{background:white;border:1.5px solid #d8d3cc;color:#6a6460;font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.83rem;padding:0.62rem 0.9rem;border-radius:11px;cursor:pointer;transition:all 0.2s;flex-shrink:0}
+.btn-back2:hover{background:#f5f0eb}
+.btn-go{flex:1;background:#E76F51;border:none;color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.92rem;padding:0.72rem;border-radius:11px;cursor:pointer;transition:all 0.2s}
+.btn-go:hover:not(:disabled){background:#d4603f;transform:translateY(-2px);box-shadow:0 6px 16px rgba(231,111,81,0.32)}
+.btn-go:disabled{background:#ddd;color:#aaa;cursor:not-allowed;transform:none;box-shadow:none}
+
+.loading-zone{display:none;position:relative;z-index:2;text-align:center;padding:2.5rem 0}
+.loading-zone.show{display:block}
+.machine-anim{font-size:3rem;animation:spin 0.7s linear infinite;display:inline-block;margin-bottom:0.6rem}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.loading-txt{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;color:#1a1a2e;margin-bottom:0.3rem}
+.loading-sub{font-size:0.78rem;color:#9a9490;font-weight:500}
+.dots-anim::after{content:'';animation:dots 1.2s steps(3,end) infinite}
+@keyframes dots{0%{content:''}33%{content:'.'}66%{content:'..'}100%{content:'...'}}
+
+.result-zone{position:relative;z-index:2;display:none}
+.result-zone.show{display:block}
+
+.winner-card{border-radius:18px;padding:1.1rem 1rem;margin-bottom:0.7rem;position:relative;overflow:hidden}
+.winner-tag{font-size:0.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:3px}
+.winner-name{font-family:'Syne',sans-serif;font-size:1.35rem;font-weight:800;color:white;line-height:1}
+.winner-sub{font-size:0.75rem;color:rgba(255,255,255,0.7);margin-top:3px;font-weight:500}
+.winner-desc{margin-top:0.65rem;background:rgba(0,0,0,0.14);border-radius:9px;padding:0.5rem 0.7rem;font-size:0.74rem;color:rgba(255,255,255,0.88);font-weight:500;line-height:1.5}
+
+.metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:0.7rem}
+.metric-card{background:rgba(255,255,255,0.18);border-radius:11px;padding:0.65rem 0.75rem;border:1px solid rgba(255,255,255,0.22)}
+.metric-label{font-size:0.6rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-bottom:3px}
+.metric-val{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;color:white;line-height:1}
+.metric-detail{font-size:0.66rem;color:rgba(255,255,255,0.6);margin-top:3px;font-weight:500;line-height:1.4}
+.eco-bar{display:flex;gap:3px;margin-top:4px}
+.eco-dot{width:13px;height:7px;border-radius:2px;background:rgba(255,255,255,0.2)}
+.eco-dot.fill{background:rgba(255,255,255,0.85)}
+
+.phases-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:7px}
+.phase-box{background:rgba(255,255,255,0.14);border-radius:9px;padding:0.5rem 0.6rem;border:1px solid rgba(255,255,255,0.18);text-align:center}
+.phase-label{font-size:0.57rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:2px}
+.phase-val{font-family:'Syne',sans-serif;font-size:0.88rem;font-weight:800;color:white}
+
+.soft-section{margin-top:0.75rem;background:rgba(0,0,0,0.12);border-radius:12px;padding:0.7rem 0.8rem}
+.soft-section-title{font-size:0.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-bottom:0.55rem}
+.soft-cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.soft-col-label{font-size:0.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:5px}
+.file-pills{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.file-pill{background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);border-radius:20px;padding:2px 8px;font-size:0.68rem;font-weight:700;color:white;font-family:'DM Sans',sans-serif;letter-spacing:0.3px}
+.file-pill.main{background:rgba(255,255,255,0.32);border-color:rgba(255,255,255,0.5)}
+.soft-list{display:flex;flex-direction:column;gap:4px}
+.soft-item{display:flex;align-items:center;gap:6px}
+.soft-badge{border-radius:6px;padding:2px 7px;font-size:0.65rem;font-weight:700;color:white;flex-shrink:0}
+.soft-badge.free{background:rgba(42,157,143,0.8)}
+.soft-badge.payant{background:rgba(231,111,81,0.7)}
+.soft-name{font-size:0.73rem;color:rgba(255,255,255,0.85);font-weight:500}
+
+.compare-btn{width:100%;margin-top:0.7rem;background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.3);color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.82rem;padding:0.6rem;border-radius:11px;cursor:pointer;transition:all 0.2s}
+.compare-btn:hover{background:rgba(255,255,255,0.25)}
+
+.compare-table{display:none;margin-top:0.7rem;border-radius:14px;overflow:hidden;border:1.5px solid #e0dbd2}
+.compare-table.show{display:block}
+.ct-head{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr 1fr;background:#1a1a2e;padding:0.45rem 0.7rem;gap:4px}
+.ct-head span{font-size:0.58rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.55)}
+.ct-row{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr 1fr;padding:0.42rem 0.7rem;gap:4px;border-top:1px solid #e8e3dc;background:white;align-items:center;transition:background 0.15s}
+.ct-row:hover{background:#faf8f5}
+.ct-row.best-row{background:#fff8f5;border-left:3px solid #E76F51}
+.ct-name{font-size:0.78rem;font-weight:700;color:#1a1a2e}
+.ct-name.best{color:#E76F51}
+.ct-cell{font-size:0.72rem;color:#6a6460;font-weight:500}
+.bar-wrap{height:6px;background:#eee;border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width 0.6s cubic-bezier(0.34,1.56,0.64,1)}
+
+.alts-row{display:flex;gap:7px;margin-bottom:0.7rem}
+.alt-card{flex:1;background:white;border-radius:13px;padding:0.7rem 0.75rem;border:1.5px solid #e8e3dc}
+.alt-tag{font-size:0.58rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#b0aaa0}
+.alt-name{font-family:'Syne',sans-serif;font-size:0.82rem;font-weight:800;color:#1a1a2e;margin-top:2px}
+.alt-chips{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap}
+.alt-chip{font-size:0.62rem;font-weight:600;padding:2px 6px;border-radius:20px;background:#f5f0eb;color:#6a6460}
+
+.crumbs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:0.7rem}
+.crumb{background:white;border-radius:20px;border:1px solid #e0dbd2;font-size:0.65rem;color:#8a8480;font-weight:500;padding:3px 8px}
+.crumb strong{color:#1a1a2e}
+
+.btn-again{width:100%;background:white;border:1.5px solid #d8d3cc;color:#1a1a2e;font-family:'Syne',sans-serif;font-weight:800;font-size:0.87rem;padding:0.68rem;border-radius:11px;cursor:pointer;transition:all 0.2s}
+.btn-again:hover{background:#f5f0eb;box-shadow:0 4px 12px rgba(0,0,0,0.07)}
+
+.animate-in{animation:up 0.38s cubic-bezier(0.34,1.56,0.64,1) both}
+@keyframes up{from{opacity:0;transform:translateY(14px) scale(0.97)}to{opacity:1;transform:none}}
+</style>
+
+<div class="wrap">
+<div class="scene">
+  <div class="deco deco1"></div><div class="deco deco2"></div><div class="deco deco3"></div>
+  <div class="topbar">
+    <div class="logo">Fab<span>Quest</span></div>
+    <div class="steps" id="steps"></div>
+  </div>
+  <div class="q-zone" id="qZone"></div>
+  <div class="loading-zone" id="loadZone">
+    <div class="machine-anim">⚙️</div>
+    <div class="loading-txt">Analyse en cours<span class="dots-anim"></span></div>
+    <div class="loading-sub">Calcul du meilleur procédé pour ta pièce</div>
+  </div>
+  <div class="result-zone" id="resultZone"></div>
+</div>
+</div>
+
+<script>
+const QS=[
+  {eye:"Étape 1 / 6 — Type de pièce",txt:"Quelle forme aura ta pièce ?",cols:"two",
+   opts:[{icon:"📄",main:"Faible épaisseur",sub:"Plaque, découpe, tôle plate",col:"#E76F51"},
+         {icon:"📦",main:"Pièce en volume",sub:"Objet 3D, forme épaisse",col:"#2A9D8F"}]},
+  {eye:"Étape 2 / 6 — Matériau",txt:"Dans quel matériau veux-tu fabriquer ?",cols:"three",
+   opts:[{icon:"⚙️",main:"Métal",sub:"Acier, aluminium…",col:"#607D8B"},
+         {icon:"🪵",main:"Bois",sub:"MDF, contreplaqué…",col:"#8D6E63"},
+         {icon:"🧪",main:"Plastique",sub:"PLA, acrylique…",col:"#9C27B0"}]},
+  {eye:"Étape 3 / 6 — Précision",txt:"Quel niveau de précision te faut-il ?",cols:"three",
+   opts:[{icon:"📏",main:"Standard",sub:"± 5 mm",col:"#78909C"},
+         {icon:"🔍",main:"Bonne",sub:"± 2 mm",col:"#26A69A"},
+         {icon:"💎",main:"Excellente",sub:"± 1 mm",col:"#7E57C2"}]},
+  {eye:"Étape 4 / 6 — Quantité",txt:"Combien de pièces veux-tu produire ?",cols:"three",
+   opts:[{icon:"1️⃣",main:"Une seule",sub:"Prototype unique",col:"#E76F51"},
+         {icon:"🔟",main:"Moins de 10",sub:"Petite série",col:"#2A9D8F"},
+         {icon:"🏭",main:"Plus de 10",sub:"Grande série",col:"#E9A800"}]},
+  {eye:"Étape 5 / 6 — Complexité",txt:"Quelle est la complexité de ta pièce ?",cols:"three",
+   opts:[{icon:"🟦",main:"Simple",sub:"Formes droites, basiques",col:"#64B5F6"},
+         {icon:"🔷",main:"Moyenne",sub:"Courbes, quelques détails",col:"#F4A261"},
+         {icon:"🧩",main:"Complexe",sub:"Géométrie avancée, creux",col:"#E63946"}]},
+  {eye:"Étape 6 / 6 — Finition",txt:"Quel niveau de finition veux-tu ?",cols:"three",
+   opts:[{icon:"🪨",main:"Brut",sub:"Tel que sorti machine",col:"#8D6E63"},
+         {icon:"🪵",main:"Poncé",sub:"Surface lissée, mat",col:"#F4A261"},
+         {icon:"✨",main:"Poli miroir",sub:"Surface brillante, fine",col:"#7E57C2"}]},
+];
+
+const PROCEDES={
+  laser:{
+    name:"Découpe laser",col:"#E63946",sub:"Enlèvement de matière par faisceau",
+    why:"Ta pièce plate avec un bon niveau de précision correspond parfaitement à la découpe laser. Elle s'applique au métal, bois et plastique avec une grande finesse.",
+    cout:"Moyen",coutDetail:"5 – 30 € / pièce",eco:2,ecoDetail:"Énergie élevée, peu de chutes",
+    phases:{prep:"15 min",fab:"10 – 30 min",finish:"5 min"},
+    scores:{cout:3,temps:4,precision:5,eco:2},
+    fichiers:{principaux:["DXF","SVG"],secondaires:["AI","PDF"]},
+    logiciels:[
+      {nom:"Inkscape",type:"free"},{nom:"LightBurn",type:"payant"},
+      {nom:"LaserGRBL",type:"free"},{nom:"Adobe Illustrator",type:"payant"},
+    ]
+  },
+  imp3d:{
+    name:"Impression 3D",col:"#2A9D8F",sub:"Ajout de matière couche par couche",
+    why:"Pièce en volume, plastique, éventuellement complexe — l'impression 3D est idéale pour le prototypage unique.",
+    cout:"Faible",coutDetail:"2 – 15 € / pièce",eco:3,ecoDetail:"Peu de chutes, plastique recyclable",
+    phases:{prep:"30 min",fab:"1 – 8 h",finish:"15 min"},
+    scores:{cout:4,temps:2,precision:3,eco:3},
+    fichiers:{principaux:["STL","3MF"],secondaires:["OBJ","STEP"]},
+    logiciels:[
+      {nom:"Tinkercad",type:"free"},{nom:"Cura",type:"free"},
+      {nom:"Fusion 360",type:"free"},{nom:"PrusaSlicer",type:"free"},
+    ]
+  },
+  cnc:{
+    name:"Usinage CNC",col:"#E9A800",sub:"Enlèvement de matière — fraiseuse",
+    why:"Pour une pièce en volume avec une bonne précision sur bois ou plastique, la fraiseuse numérique donne d'excellents résultats.",
+    cout:"Élevé",coutDetail:"20 – 80 € / pièce",eco:2,ecoDetail:"Chutes importantes, huile de coupe",
+    phases:{prep:"45 min",fab:"30 min – 2 h",finish:"20 min"},
+    scores:{cout:2,temps:3,precision:4,eco:2},
+    fichiers:{principaux:["DXF","STEP"],secondaires:["IGES","G-code"]},
+    logiciels:[
+      {nom:"Fusion 360",type:"free"},{nom:"FreeCAD",type:"free"},
+      {nom:"VCarve",type:"payant"},{nom:"Aspire",type:"payant"},
+    ]
+  },
+  cisaille:{
+    name:"Cisaillage / Sciage",col:"#5D9B6A",sub:"Découpe rectiligne par lame",
+    why:"Simple, rapide et économique pour des formes droites en grande série sur métal ou bois.",
+    cout:"Faible",coutDetail:"1 – 8 € / pièce",eco:4,ecoDetail:"Aucune énergie thermique, peu de déchets",
+    phases:{prep:"5 min",fab:"2 – 10 min",finish:"5 min"},
+    scores:{cout:5,temps:5,precision:2,eco:4},
+    fichiers:{principaux:["DXF","PDF"],secondaires:["Plan papier"]},
+    logiciels:[
+      {nom:"Inkscape",type:"free"},{nom:"LibreCAD",type:"free"},
+      {nom:"AutoCAD LT",type:"payant"},{nom:"QCAD",type:"free"},
+    ]
+  },
+  pliage:{
+    name:"Pliage",col:"#9B59B6",sub:"Mise en forme à froid ou à chaud",
+    why:"Ta pièce plate à mettre en forme — à froid pour le métal, à chaud avec une thermoplieuse pour le plastique.",
+    cout:"Faible",coutDetail:"2 – 12 € / pièce",eco:4,ecoDetail:"Aucune matière perdue, procédé propre",
+    phases:{prep:"10 min",fab:"5 – 20 min",finish:"5 min"},
+    scores:{cout:5,temps:5,precision:3,eco:4},
+    fichiers:{principaux:["DXF","DWG"],secondaires:["PDF","Plan papier"]},
+    logiciels:[
+      {nom:"LibreCAD",type:"free"},{nom:"FreeCAD",type:"free"},
+      {nom:"SolidWorks",type:"payant"},{nom:"Onshape",type:"free"},
+    ]
+  },
+  percage:{
+    name:"Perçage",col:"#E67E22",sub:"Trous par enlèvement de matière",
+    why:"Procédé complémentaire pour créer des trous précis dans ta pièce, quel que soit le matériau.",
+    cout:"Très faible",coutDetail:"< 2 € / trou",eco:4,ecoDetail:"Consommation énergétique minimale",
+    phases:{prep:"5 min",fab:"1 – 5 min",finish:"2 min"},
+    scores:{cout:5,temps:5,precision:3,eco:4},
+    fichiers:{principaux:["DXF","PDF"],secondaires:["Plan papier"]},
+    logiciels:[
+      {nom:"LibreCAD",type:"free"},{nom:"QCAD",type:"free"},
+      {nom:"AutoCAD",type:"payant"},{nom:"Inkscape",type:"free"},
+    ]
+  },
+};
+
+const ECO_LABELS=["","Très polluant","Polluant","Moyen","Propre","Très propre"];
+const TOTAL=6;
+let cur=0,ans=new Array(TOTAL).fill(null),showComp=false;
+
+function buildSteps(){
+  const el=document.getElementById('steps');el.innerHTML='';
+  for(let i=0;i<TOTAL;i++){
+    const d=document.createElement('div');
+    d.className='step-pip'+(i<cur?' done':i===cur?' active':'');
+    el.appendChild(d);
+  }
+}
+
+function render(){
+  buildSteps();
+  document.getElementById('loadZone').className='loading-zone';
+  document.getElementById('resultZone').className='result-zone';
+  document.getElementById('qZone').style.display='block';
+  const q=QS[cur];
+  document.getElementById('qZone').innerHTML=`
+    <div class="q-eyebrow animate-in">${q.eye}</div>
+    <div class="q-text animate-in" style="animation-delay:.04s">${q.txt}</div>
+    <div class="choices ${q.cols} animate-in" id="choices" style="animation-delay:.08s"></div>
+    <div class="nav animate-in" style="animation-delay:.12s">
+      ${cur>0?'<button class="btn-back2" onclick="goBack()">← Retour</button>':''}
+      <button class="btn-go" id="btnGo" onclick="goNext()" ${ans[cur]===null?'disabled':''}>
+        ${cur===TOTAL-1?'Analyser ma pièce ⚙️':'Suivant →'}
+      </button>
+    </div>`;
+  const grid=document.getElementById('choices');
+  q.opts.forEach((o,i)=>{
+    const btn=document.createElement('button');
+    btn.className='choice-btn'+(ans[cur]===i?' selected':'');
+    btn.style.setProperty('--sel',o.col);
+    btn.innerHTML=`<span class="chk">✓</span><div class="ci">${o.icon}</div><div class="cm">${o.main}</div><div class="cs">${o.sub}</div><div class="c-stripe"></div>`;
+    btn.onclick=()=>pick(i);
+    grid.appendChild(btn);
+  });
+}
+
+function pick(i){
+  ans[cur]=i;
+  document.querySelectorAll('.choice-btn').forEach((b,idx)=>{b.className='choice-btn'+(idx===i?' selected':'');});
+  document.getElementById('btnGo').disabled=false;
+}
+
+function goNext(){
+  if(ans[cur]===null)return;
+  if(cur<TOTAL-1){cur++;render();}
+  else{
+    document.getElementById('qZone').style.display='none';
+    document.getElementById('loadZone').className='loading-zone show';
+    buildSteps();
+    setTimeout(showResult,1800);
+  }
+}
+function goBack(){if(cur>0){cur--;render();}}
+
+function ecoBar(n){
+  let h='';for(let i=1;i<=5;i++)h+=`<div class="eco-dot${i<=n?' fill':''}"></div>`;return h;
+}
+function scoreBar(v,c){
+  return `<div class="bar-wrap"><div class="bar-fill" style="width:${Math.round(v/5*100)}%;background:${c}"></div></div>`;
+}
+function toggleCompare(){
+  showComp=!showComp;
+  document.getElementById('compareTable').className='compare-table'+(showComp?' show':'');
+  document.getElementById('compareBtn').textContent=showComp?'▲ Masquer la comparaison':'▼ Pourquoi pas les autres ?';
+}
+
+function showResult(){
+  document.getElementById('loadZone').className='loading-zone';
+  const ranked=Object.entries((()=>{
+    const s={laser:0,imp3d:0,cnc:0,cisaille:0,pliage:0,percage:0};
+    const[type,mat,prec,qty,cplx,finish]=ans;
+    if(type===0){s.laser+=5;s.cisaille+=3;s.pliage+=3;s.percage+=2}
+    if(type===1){s.imp3d+=5;s.cnc+=4}
+    if(mat===0){s.laser+=3;s.cisaille+=3;s.pliage+=3;s.cnc+=2}
+    if(mat===1){s.laser+=3;s.cnc+=4;s.cisaille+=2}
+    if(mat===2){s.laser+=2;s.imp3d+=5;s.cnc+=2;s.pliage+=2}
+    if(prec===0){s.cisaille+=3;s.pliage+=3}
+    if(prec===1){s.laser+=3;s.cnc+=3}
+    if(prec===2){s.laser+=4;s.cnc+=2;s.imp3d+=1}
+    if(qty===0){s.imp3d+=3;s.laser+=2;s.cnc+=2}
+    if(qty===1){s.laser+=3;s.cnc+=2;s.imp3d+=2}
+    if(qty===2){s.cisaille+=4;s.pliage+=4;s.laser+=2}
+    if(cplx===0){s.cisaille+=4;s.pliage+=3;s.percage+=3}
+    if(cplx===1){s.laser+=3;s.cnc+=3}
+    if(cplx===2){s.laser+=4;s.imp3d+=3;s.cnc+=2}
+    if(finish===0){s.cisaille+=2;s.pliage+=2;s.percage+=2}
+    if(finish===1){s.laser+=2;s.cnc+=2;s.imp3d+=1}
+    if(finish===2){s.cnc+=3;s.laser+=2;s.imp3d+=1}
+    return s;
+  })()).sort((a,b)=>b[1]-a[1]);
+
+  const bestK=ranked[0][0];
+  const alts=ranked.slice(1,3).map(r=>r[0]);
+  const bp=PROCEDES[bestK];
+  const crumbLabels=[
+    ['Type',QS[0].opts[ans[0]].main],['Matière',QS[1].opts[ans[1]].main],
+    ['Précision',QS[2].opts[ans[2]].main],['Qté',QS[3].opts[ans[3]].main],
+    ['Complexité',QS[4].opts[ans[4]].main],['Finition',QS[5].opts[ans[5]].main],
+  ];
+
+  const tableRows=ranked.map(([k],i)=>{
+    const p=PROCEDES[k];const isBest=i===0;
+    return `<div class="ct-row${isBest?' best-row':''}">
+      <div class="ct-name${isBest?' best':''}">${isBest?'★ ':''}${p.name}</div>
+      <div class="ct-cell">${scoreBar(p.scores.cout,'#2A9D8F')}</div>
+      <div class="ct-cell">${scoreBar(p.scores.temps,'#E76F51')}</div>
+      <div class="ct-cell">${scoreBar(p.scores.precision,'#7E57C2')}</div>
+      <div class="ct-cell">${scoreBar(p.scores.eco,'#5D9B6A')}</div>
+    </div>`;
+  }).join('');
+
+  const softHTML=`
+    <div class="soft-section">
+      <div class="soft-section-title">Fichiers &amp; logiciels compatibles</div>
+      <div class="soft-cols">
+        <div>
+          <div class="soft-col-label">Formats de fichiers</div>
+          <div class="file-pills">
+            ${bp.fichiers.principaux.map(f=>`<span class="file-pill main">.${f}</span>`).join('')}
+            ${bp.fichiers.secondaires.map(f=>`<span class="file-pill">.${f}</span>`).join('')}
+          </div>
+          <div class="soft-col-label" style="margin-top:6px">Les .${bp.fichiers.principaux[0]} sont les plus courants</div>
+        </div>
+        <div>
+          <div class="soft-col-label">Logiciels</div>
+          <div class="soft-list">
+            ${bp.logiciels.map(l=>`<div class="soft-item">
+              <span class="soft-badge ${l.type}">${l.type==='free'?'Gratuit':'Payant'}</span>
+              <span class="soft-name">${l.nom}</span>
+            </div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  const rz=document.getElementById('resultZone');
+  rz.className='result-zone show';
+  rz.innerHTML=`
+    <div class="winner-card animate-in" style="background:${bp.col}">
+      <div class="winner-tag">Meilleur procédé pour toi</div>
+      <div class="winner-name">${bp.name}</div>
+      <div class="winner-sub">${bp.sub}</div>
+      <div class="winner-desc">${bp.why}</div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-label">Coût estimé</div>
+          <div class="metric-val">${bp.cout}</div>
+          <div class="metric-detail">${bp.coutDetail}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Impact environnemental</div>
+          <div class="metric-val">${ECO_LABELS[bp.eco]}</div>
+          <div class="eco-bar">${ecoBar(bp.eco)}</div>
+          <div class="metric-detail">${bp.ecoDetail}</div>
+        </div>
+      </div>
+      <div class="phases-row">
+        <div class="phase-box"><div class="phase-label">Préparation</div><div class="phase-val">${bp.phases.prep}</div></div>
+        <div class="phase-box"><div class="phase-label">Fabrication</div><div class="phase-val">${bp.phases.fab}</div></div>
+        <div class="phase-box"><div class="phase-label">Finition</div><div class="phase-val">${bp.phases.finish}</div></div>
+      </div>
+      ${softHTML}
+      <button class="compare-btn" id="compareBtn" onclick="toggleCompare()">▼ Pourquoi pas les autres ?</button>
+    </div>
+
+    <div class="compare-table" id="compareTable">
+      <div class="ct-head">
+        <span>Procédé</span><span>Coût</span><span>Rapidité</span><span>Précision</span><span>Éco</span>
+      </div>${tableRows}
+    </div>
+
+    <div class="alts-row animate-in" style="animation-delay:.1s">
+      ${alts.map(k=>{const p=PROCEDES[k];return`<div class="alt-card">
+        <div class="alt-tag">Alternative</div>
+        <div class="alt-name">${p.name}</div>
+        <div class="alt-chips">
+          <span class="alt-chip">💶 ${p.cout}</span>
+          <span class="alt-chip">🌿 ${ECO_LABELS[p.eco]}</span>
+          <span class="alt-chip">⏱ ${p.phases.fab}</span>
+          <span class="alt-chip">.${p.fichiers.principaux[0]}</span>
+        </div>
+      </div>`;}).join('')}
+    </div>
+
+    <div class="crumbs animate-in" style="animation-delay:.14s">
+      ${crumbLabels.map(([k,v])=>`<span class="crumb"><strong>${k}</strong> ${v}</span>`).join('')}
+    </div>
+    <button class="btn-again animate-in" style="animation-delay:.18s" onclick="restart()">↺ Recommencer</button>
+  `;
+}
+
+function restart(){cur=0;ans=new Array(TOTAL).fill(null);showComp=false;render();}
+render();
+</script>
